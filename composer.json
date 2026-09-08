@@ -1,0 +1,16 @@
+{
+    "name": "porter/live-tracker",
+    "description": "Porter Live Ride Tracker — multi-user PHP dashboard with background polling",
+    "type": "project",
+    "require": {
+        "php": ">=8.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Porter\\": "src/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true
+    }
+}

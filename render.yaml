@@ -1,0 +1,61 @@
+services:
+  # ── WEB SERVICE ────────────────────────────────────────────────────────────
+  - type: web
+    name: porter-tracker-web
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /api/health
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_KEY
+        generateValue: true
+      - key: APP_URL
+        sync: false   # Set to your Render URL e.g. https://porter-tracker.onrender.com
+      - key: DATABASE_URL
+        fromDatabase:
+          name: porter-db
+          property: connectionString
+      - key: TRACK_INTERVAL_SECONDS
+        value: "30"
+      - key: REPORT_DELAY_SECONDS
+        value: "600"
+      - key: INACTIVE_DAYS
+        value: "30"
+      - key: APP_TIMEZONE
+        value: "Asia/Kolkata"
+
+  # ── BACKGROUND WORKER ─────────────────────────────────────────────────────
+  - type: worker
+    name: porter-tracker-worker
+    runtime: docker
+    dockerfilePath: ./Dockerfile.worker
+    plan: free
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_KEY
+        fromService:
+          name: porter-tracker-web
+          type: web
+          envVarKey: APP_KEY
+      - key: DATABASE_URL
+        fromDatabase:
+          name: porter-db
+          property: connectionString
+      - key: TRACK_INTERVAL_SECONDS
+        value: "30"
+      - key: REPORT_DELAY_SECONDS
+        value: "600"
+      - key: INACTIVE_DAYS
+        value: "30"
+      - key: APP_TIMEZONE
+        value: "Asia/Kolkata"
+
+# ── DATABASE ───────────────────────────────────────────────────────────────
+databases:
+  - name: porter-db
+    plan: free
+    databaseName: porter_tracker
+    user: porter
